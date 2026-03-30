@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result</title>
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="bg-blur blur1"></div>
+    <div class="bg-blur blur2"></div>
+
+    <nav class="navbar">
+        <div class="logo">CareerFit Analyzer</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+        </div>
+    </nav>
+
+    <section class="result-header fade-up">
+        <span class="tagline">Analysis Dashboard</span>
+        <h1>Resume Analysis Report</h1>
+        <p><strong>Target Role:</strong> {{ role }}</p>
+        <p><strong>Resume File:</strong> {{ file_name }}</p>
+    </section>
+
+    <section class="top-dashboard fade-up">
+        <div class="score-card glass">
+            <h2>Overall Match Score</h2>
+            <div class="progress-ring" style="--percent: {{ match_score }};">
+                <div class="progress-inner">
+                    <span>{{ match_score }}%</span>
+                </div>
+            </div>
+            <p class="muted-text">Skill compatibility between resume and target role</p>
+        </div>
+
+        <div class="summary-card glass">
+            <h2>Quick Overview</h2>
+            <div class="mini-grid">
+                <div class="mini-box">
+                    <h3>{{ matched_skills|length }}</h3>
+                    <p>Matched Skills</p>
+                </div>
+                <div class="mini-box">
+                    <h3>{{ missing_skills|length }}</h3>
+                    <p>Missing Skills</p>
+                </div>
+                <div class="mini-box">
+                    <h3>{{ extra_skills|length }}</h3>
+                    <p>Extra Skills</p>
+                </div>
+                <div class="mini-box">
+                    <h3>{{ required_skills|length }}</h3>
+                    <p>Required Skills</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="chart-card glass fade-up">
+        <h2>Skill Distribution</h2>
+        <div class="bar-chart">
+            <div class="bar-item">
+                <span>Matched Skills</span>
+                <div class="bar">
+                    <div class="fill matched-fill"
+                         style="width: {{ (matched_skills|length * 100 // (required_skills|length if required_skills|length > 0 else 1)) }}%;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bar-item">
+                <span>Missing Skills</span>
+                <div class="bar">
+                    <div class="fill missing-fill"
+                         style="width: {{ (missing_skills|length * 100 // (required_skills|length if required_skills|length > 0 else 1)) }}%;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bar-item">
+                <span>Extra Skills</span>
+                <div class="bar">
+                    <div class="fill extra-fill"
+                         style="width: {{ (extra_skills|length * 100 // (resume_skills|length if resume_skills|length > 0 else 1)) }}%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-grid fade-up">
+        <div class="card glass">
+            <h3>Matched Skills</h3>
+            <div class="badges">
+                {% for skill in matched_skills %}
+                    <span class="badge match">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card glass">
+            <h3>Missing Skills</h3>
+            <div class="badges">
+                {% for skill in missing_skills %}
+                    <span class="badge missing">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card glass">
+            <h3>Extra Skills</h3>
+            <div class="badges">
+                {% for skill in extra_skills %}
+                    <span class="badge extra">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card glass">
+            <h3>ATS Checks</h3>
+            <ul class="status-list">
+                {% for key, value in checks.items() %}
+                    <li>
+                        <span>{{ key }}</span>
+                        <span class="{{ 'yes' if value else 'no' }}">{{ "Yes" if value else "No" }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card glass full-width">
+            <h3>Suggestions</h3>
+            <ul>
+                {% for item in suggestions %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card glass">
+            <h3>Learning Roadmap</h3>
+            <ul>
+                {% for item in roadmap %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card glass">
+            <h3>Interview Questions</h3>
+            <ul>
+                {% for question in interview_questions %}
+                    <li>{{ question }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+
+    <div class="center-btn fade-up">
+        <a href="/" class="back-btn">Analyze Another Resume</a>
+    </div>
+
+   <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
