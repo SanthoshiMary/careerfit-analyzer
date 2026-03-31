@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Skill Match Analyzer</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+
+  <div id="loader" class="loader-overlay hidden">
+    <div class="loader-box">
+      <div class="spinner"></div>
+      <p>Processing request...</p>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <nav class="navbar">
+    <div class="logo">Resume Skill Match Analyzer</div>
+    <div class="nav-links">
+      <a href="#uploadSection">Upload</a>
+      <a href="#jobSection">Jobs</a>
+      <a href="#dashboardSection">Dashboard</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-text">
+      <span class="hero-badge">AI + Semantic Skill Intelligence</span>
+      <h1>Analyze resumes and match them with job requirements</h1>
+      <p>
+        Upload resumes, create job descriptions, compare exact and semantic skill matches,
+        and explore insights through a premium analytics dashboard.
+      </p>
+      <div class="hero-actions">
+        <a href="#uploadSection" class="btn primary-btn">Upload Resume</a>
+        <a href="#dashboardSection" class="btn secondary-btn">View Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <section class="stats-grid">
+      <div class="stat-card">
+        <p>Total Matches</p>
+        <h3 id="totalMatches">0</h3>
+      </div>
+      <div class="stat-card">
+        <p>Average Score</p>
+        <h3 id="avgScore">0%</h3>
+      </div>
+      <div class="stat-card">
+        <p>High Score Matches</p>
+        <h3 id="highMatches">0</h3>
+      </div>
+      <div class="stat-card">
+        <p>Latest Resume</p>
+        <h3 id="latestResume">-</h3>
+      </div>
+    </section>
+
+    <section class="feature-grid">
+      <div class="glass-card feature-card">
+        <h3>Exact Match</h3>
+        <p>Compares direct skill overlap between resume and job description.</p>
+      </div>
+      <div class="glass-card feature-card">
+        <h3>Semantic Match</h3>
+        <p>Detects related skills like ReactJS and React, or REST API and API development.</p>
+      </div>
+      <div class="glass-card feature-card">
+        <h3>Dashboard Analytics</h3>
+        <p>Visualize scores, track match quality, and explore detailed results instantly.</p>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <div class="glass-card" id="uploadSection">
+        <div class="section-head">
+          <h2>Upload Resume</h2>
+          <span class="mini-tag">Drag & Drop Supported</span>
+        </div>
+
+        <div id="dropZone" class="drop-zone">
+          <div class="drop-zone-inner">
+            <h3>Drop resume here</h3>
+            <p>or click below to choose a file</p>
+            <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" hidden />
+            <button class="btn primary-btn small-btn" onclick="document.getElementById('resumeFile').click()">
+              Choose Resume
+            </button>
+            <small id="selectedFileName">No file selected</small>
+          </div>
+        </div>
+
+        <button class="btn primary-btn full-btn" onclick="uploadResume()">Upload Resume</button>
+        <p id="uploadMessage" class="message-text"></p>
+      </div>
+
+      <div class="glass-card" id="jobSection">
+        <div class="section-head">
+          <h2>Create Job Description</h2>
+          <span class="mini-tag">Role + Company + Description</span>
+        </div>
+
+        <input type="text" id="role" placeholder="Role name (e.g. Python Developer)" />
+        <input type="text" id="company" placeholder="Company name" />
+        <textarea id="jobDescription" placeholder="Paste the full job description here..."></textarea>
+
+        <button class="btn primary-btn full-btn" onclick="createJob()">Create Job</button>
+        <p id="jobMessage" class="message-text"></p>
+      </div>
+    </section>
+
+    <section class="glass-card" id="dashboardSection">
+      <div class="dashboard-head">
+        <h2>Match Dashboard</h2>
+        <div class="toolbar">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by resume, role or company..."
+            onkeyup="filterMatches()"
+          />
+          <select id="sortSelect" onchange="sortMatches()">
+            <option value="latest">Latest</option>
+            <option value="highest">Highest Score</option>
+            <option value="lowest">Lowest Score</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>Match Score Distribution</h3>
+          <canvas id="scoreChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Skill Match Overview</h3>
+          <canvas id="skillsChart"></canvas>
+        </div>
+      </div>
+
+      <div class="dashboard-subgrid">
+        <div class="glass-subcard">
+          <h3>Semantic Matching Insight</h3>
+          <p id="semanticSummary">
+            Semantic matching highlights related skills even when wording differs.
+          </p>
+        </div>
+        <div class="glass-subcard">
+          <h3>Current Filter Status</h3>
+          <p id="filterStatus">Showing all match results</p>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        <h3>No match results yet</h3>
+        <p>Upload a resume and create a job to begin analysis.</p>
+      </div>
+
+      <div id="matchList" class="match-grid"></div>
+    </section>
+  </main>
+
+  <div id="detailsModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">×</button>
+      <h2>Match Details</h2>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
