@@ -230,6 +230,7 @@ function renderMatches(matches) {
     const missingSkills = match.missing_skills || [];
     const extraSkills = match.extra_skills || [];
     const semanticSkills = match.semantic_matches || [];
+    const recommendations = match.recommendations || [];
 
     card.innerHTML = `
       <h3>${match.role_name || "Unknown Role"}</h3>
@@ -262,6 +263,17 @@ function renderMatches(matches) {
         <h4>Semantic Matches</h4>
         <div class="skill-tags">
           ${semanticSkills.length ? semanticSkills.map(skill => `<span class="tag semantic">${skill}</span>`).join("") : `<span class="tag semantic">No semantic matches</span>`}
+        </div>
+      </div>
+
+      <div class="card-section">
+        <h4>Recommendations</h4>
+        <div class="skill-tags">
+          ${
+            recommendations.length
+              ? recommendations.map(rec => `<span class="tag semantic">${rec.recommendation_text}</span>`).join("")
+              : `<span class="tag semantic">No recommendations</span>`
+          }
         </div>
       </div>
 
@@ -431,6 +443,7 @@ function openModal(match) {
   const matchedSkills = match.matched_skills || [];
   const missingSkills = match.missing_skills || [];
   const extraSkills = match.extra_skills || [];
+  const recommendations = match.recommendations || [];
 
   modalBody.innerHTML = `
     <p><strong>Role:</strong> ${match.role_name || "N/A"}</p>
@@ -464,6 +477,17 @@ function openModal(match) {
       <h4>Semantic Matches</h4>
       <div class="skill-tags">
         ${semanticMatches.length ? semanticMatches.map(skill => `<span class="tag semantic">${skill}</span>`).join("") : `<span class="tag semantic">No semantic matches</span>`}
+      </div>
+    </div>
+
+    <div class="card-section">
+      <h4>Recommendations</h4>
+      <div class="skill-tags">
+        ${
+          recommendations.length
+            ? recommendations.map(rec => `<span class="tag semantic">${rec.recommendation_text}</span>`).join("")
+            : `<span class="tag semantic">No recommendations</span>`
+        }
       </div>
     </div>
   `;
