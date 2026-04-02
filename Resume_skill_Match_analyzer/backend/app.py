@@ -15,7 +15,7 @@ DB_CONFIG = {
     "host": "localhost",
     "database": "resume_match_db",
     "user": "postgres",
-    "password": "your_password_here"
+    "password": "Santhoshi@20"
 }
 
 def get_connection():
@@ -109,7 +109,6 @@ def upload_resume():
     conn = get_connection()
     cur = conn.cursor()
 
-    # use existing user_id = 1 for now
     user_id = 1
 
     cur.execute("""
@@ -171,7 +170,6 @@ def create_job():
             VALUES (%s, %s, %s)
         """, (skill.lower().strip(), "job", job_id))
 
-    # get latest resume for quick demo analysis
     cur.execute("""
         SELECT resume_id, file_name, resume_text
         FROM resumes
@@ -182,7 +180,6 @@ def create_job():
 
     if latest_resume:
         resume_id = latest_resume[0]
-        resume_name = latest_resume[1]
         resume_text = latest_resume[2] or ""
 
         resume_skills = extract_skills_from_text(resume_text)
@@ -190,7 +187,10 @@ def create_job():
         matched_skills = list(set(resume_skills) & set(job_skills))
         missing_skills = list(set(job_skills) - set(resume_skills))
         extra_skills = list(set(resume_skills) - set(job_skills))
-        semantic_matches = semantic_matches_from_lists(resume_skills, job_skills)
+
+        matched_skills.sort()
+        missing_skills.sort()
+        extra_skills.sort()
 
         score = 0
         if len(job_skills) > 0:
@@ -274,13 +274,15 @@ def get_matches():
         job_id = row[2]
 
         cur.execute("""
-            SELECT skill_name FROM skills
+            SELECT skill_name
+            FROM skills
             WHERE source_type = 'resume' AND resume_id = %s
         """, (resume_id,))
         resume_skills = [r[0] for r in cur.fetchall()]
 
         cur.execute("""
-            SELECT skill_name FROM skills
+            SELECT skill_name
+            FROM skills
             WHERE source_type = 'job' AND job_id = %s
         """, (job_id,))
         job_skills = [j[0] for j in cur.fetchall()]
@@ -289,6 +291,27 @@ def get_matches():
         missing_skills = list(set(job_skills) - set(resume_skills))
         extra_skills = list(set(resume_skills) - set(job_skills))
         semantic_matches = semantic_matches_from_lists(resume_skills, job_skills)
+
+        matched_skills.sort()
+        missing_skills.sort()
+        extra_skills.sort()
+
+        # FIX: fetch recommendations for this analysis
+        cur.execute("""
+            SELECT recommendation_type, recommendation_text
+            FROM recommendations
+            WHERE analysis_id = %s
+            ORDER BY recommendation_id ASC
+        """, (analysis_id,))
+        rec_rows = cur.fetchall()
+
+        recommendations = [
+            {
+                "recommendation_type": rec[0],
+                "recommendation_text": rec[1]
+            }
+            for rec in rec_rows
+        ]
 
         results.append({
             "match_id": analysis_id,
@@ -302,6 +325,7 @@ def get_matches():
             "missing_skills": missing_skills,
             "extra_skills": extra_skills,
             "semantic_matches": semantic_matches,
+            "recommendations": recommendations,
             "created_at": str(row[7])
         })
 
